@@ -5,6 +5,7 @@ export default class AuthService {
         this.baseUrl = baseUrl ||  'http://localhost:8080';
     }
 
+    
     getToken() {
         return localStorage.getItem('token');
     }
@@ -41,6 +42,16 @@ export default class AuthService {
     }
 
     login(username, password) {
-        
+        return this.fetch(`${this.baseUrl}/auth/login`, {
+            method: 'POST',
+            body: JSON.stringify({
+                username,
+                password
+            })
+        }).then(res => {
+            this.setToken(res.token);
+            return Promise.resolve(res);
+
+        });
     }
 }
