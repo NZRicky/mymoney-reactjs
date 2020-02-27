@@ -2,10 +2,10 @@ import decode from 'jwt-decode';
 
 export default class AuthService {
     constructor(baseUrl) {
-        this.baseUrl = baseUrl ||  'http://localhost:8080';
+        this.baseUrl = baseUrl || 'http://mymoney.local/api';
     }
 
-    
+
     getToken() {
         return localStorage.getItem('token');
     }
@@ -28,21 +28,33 @@ export default class AuthService {
     }
     isLoggedIn() {
         const token = this.getToken();
-        return token && !this.isTokenExpired(token);
+        return (token && !this.isTokenExpired(token));
     }
-    fetch(url, options) {
+    fetch(uri, options) {
+        //this.logout();
         const headers = new Headers();
         headers.append('Content-Type', 'application/json');
         headers.append('Accept', 'applicatioin/json');
 
-        return fetch(url, {
+        if (this.isLoggedIn()) {
+            headers.append('Authorization', 'Bearer ' + this.getToken());
+        }
+        return fetch(this.baseUrl + uri, {
             headers,
             ...options
-        });
+        }).then(res => {
+            if (res.status >= 200 && res.status < 300) { // Success status lies between 200 to 300
+                return res
+            } else {
+                var error = new Error(res.statusText)
+                error.response = res
+                throw error
+            }
+        }).then(res => res.json())
     }
 
     login(username, password) {
-        return this.fetch(`${this.baseUrl}/auth/login`, {
+        return this.fetch('/auth/login', {
             method: 'POST',
             body: JSON.stringify({
                 username,
@@ -51,7 +63,10 @@ export default class AuthService {
         }).then(res => {
             this.setToken(res.token);
             return Promise.resolve(res);
-
         });
+    }
+
+    logout() {
+        localStorage.removeItem('token');
     }
 }
