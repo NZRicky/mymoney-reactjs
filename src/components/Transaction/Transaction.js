@@ -28,13 +28,13 @@ const useStyles = makeStyles({
 
     },
     fabButton: {
-      position: 'fixed',
-      zIndex: 1,
-      bottom: 60,
-      right: 20,
-      margin: '0 auto',
+        position: 'fixed',
+        zIndex: 1,
+        bottom: 60,
+        right: 20,
+        margin: '0 auto',
     },
-    
+
 });
 
 function Transaction(props) {
@@ -46,6 +46,13 @@ function Transaction(props) {
         }
         return null;
     };
+
+    const [isLogged, setIsLogged] = useState(false);
+    useEffect(() => {
+        if (authService.isLoggedIn()) {
+            setIsLogged(true);
+        }
+    });
     //return renderTransactionLine();
     useEffect(() => {
         if (!authService.isLoggedIn()) {
@@ -64,7 +71,7 @@ function Transaction(props) {
 
 
     return (
-        <div>
+        <div style={{ paddingBottom: '120px' }}>
             <TableContainer component={Paper}>
                 <Table className={classes.table} aria-label="simple table">
                     <TableHead>
@@ -83,83 +90,9 @@ function Transaction(props) {
             <Fab color="secondary" aria-label="add" className={classes.fabButton} href='/transaction/new'>
                 <AddIcon />
             </Fab>
+            {isLogged ? (<SimpleBottomNavigation />) : ''}
         </div>
     );
-    /* 
-        constructor(props) {
-            super(props);
-            this.Auth = new AuthService();
-            this.state = {
-                history: null,
-                tokenInfo: null
-            }
-        }
-    
-        getTransactionList() {
-            const config = {
-                headers: { Authorization: `Bearer ${this.state.token}` }
-            };
-    
-            const bodyParameters = {
-    
-            };
-    
-            axios.get(
-                'http://mymoney.local/api/transaction/list',
-                bodyParameters,
-                config
-            ).then(response => {
-                console.log(response);
-                this.setState({
-                    transactions: response
-                });
-            }).catch(error => {
-    
-            });
-        }
-    
-        componentDidMount() {
-            // redirect to login if no auth
-            if (!this.Auth.isLoggedIn()) {
-                this.setState({
-                    history: '/login'
-                });
-    
-            } else {
-                this.Auth.fetch('/transaction/list', {
-                    method: 'GET'
-                }).then(data => {
-                    console.log(data);
-                    this.setState({
-                        transactions: data
-                    });
-                }).catch(err => {
-                    console.log(err);
-                })
-    
-            }
-    
-        }
-    
-        renderTransactionLine() {
-            if (null != this.state.transactions) {
-                return this.state.transactions.map(transaction => (
-                    <TransactionLine key={transaction.id} transaction={transaction} />
-                ));
-            } else {
-                return null;
-            }
-        }
-    
-        render() {
-            if (this.state.history) {
-                return (<Redirect to={this.state.history} />);
-            } else {
-                return (
-                    <ul>{this.renderTransactionLine()}</ul>
-                )
-            }
-        } */
 }
 
 export default withRouter(Transaction);

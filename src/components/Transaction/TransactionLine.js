@@ -27,7 +27,7 @@ function TransactionLine({transaction}) {
             <TableCell component="th" scope="row">
                {transaction.date}
             </TableCell>
-            <TableCell align="right">Food</TableCell>
+            <TableCell align="right">{transaction.category}</TableCell>
             <TableCell align="right">${transaction.amount}</TableCell>
 
         </TableRow>

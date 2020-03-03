@@ -24,6 +24,11 @@ import {
     KeyboardDatePicker,
 } from '@material-ui/pickers';
 
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
+import InputLabel from '@material-ui/core/InputLabel';
+import FormControl from '@material-ui/core/FormControl';
+
 const authService = new AuthService();
 
 function Copyright() {
@@ -40,6 +45,10 @@ function Copyright() {
 }
 
 const useStyles = makeStyles(theme => ({
+    formControl: {
+        margin: theme.spacing(1),
+        width: '100%',
+    },
     paper: {
         marginTop: theme.spacing(4),
         display: 'flex',
@@ -77,22 +86,49 @@ function TransactionNew(props) {
         setSelectedDate(date);
     };
 
+
+    const [cates, setCates] = useState([{
+        id: 0,
+        name: 'Loading...'
+    }]);
+
+    const [loading, setLoading] = useState(true);
+
     useEffect(() => {
         if (!authService.isLoggedIn()) {
             props.history.replace('/login');
+        } else {
+            let unamounted = false;
+            // load category
+            authService.fetch('/category/list', {
+                method: 'GET'
+            })
+                .then(res => {
+                    console.log(res);
+                    setCates(res);
+                    setLoading(false);
+                }).catch(err => {
+                    alert(err);
+                });
+                return () => {
+                   unamounted = true;     
+                };
         }
     }, []);
+
+
 
     const handleFormSubmit = e => {
         e.preventDefault();
         const postData = {
             ...input,
-            createdAt: selectedDate
+            createdAt: selectedDate,
+            category: cate
         };
-        authService.fetch('/transaction/new',{
+        authService.fetch('/transaction/new', {
             method: 'POST',
-            mode: 'cors', 
-            cache: 'no-cache', 
+            mode: 'cors',
+            cache: 'no-cache',
             body: JSON.stringify(postData)
         })
             .then(res => {
@@ -103,6 +139,20 @@ function TransactionNew(props) {
         // console.log(authService);
 
     }
+
+    const [cate, setCate] = React.useState('');
+    const handleChange = event => {
+        setCate(event.target.value);
+    };
+
+
+    const renderCategorySelect = () => {
+        
+        if (cates.length > 0) {
+            return cates.map((cate) => (<MenuItem value={cate.id}>{cate.name}</MenuItem>));
+        }
+        return null;
+    };
     return (
         <Container component="main" maxWidth="xs">
             <div className={classes.paper}>
@@ -123,6 +173,20 @@ function TransactionNew(props) {
                             }}
                         />
                     </MuiPickersUtilsProvider>
+                    <FormControl className={classes.form}>
+                        <InputLabel id="demo-simple-select-label">Category</InputLabel>
+                        <Select
+                            disabled={loading} 
+                            fullWidth
+                            labelId="demo-simple-select-label"
+                            id="demo-simple-select"
+                            value={cate}
+                            onChange={handleChange}
+                        >
+                            {cates.map((cate) => (<MenuItem key={cate.id} value={cate.id}>{cate.name}</MenuItem>))}
+                        </Select>
+                    </FormControl>
+
                     <TextField
                         fullWidth
                         margin="normal"
@@ -141,7 +205,7 @@ function TransactionNew(props) {
                         id="notes"
                         onChange={handleInputChange}
                     />
-                    
+
                     <Button
                         type="submit"
                         fullWidth
