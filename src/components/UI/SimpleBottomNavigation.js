@@ -8,6 +8,7 @@ import LocationOnIcon from '@material-ui/icons/LocationOn';
 import Fab from '@material-ui/core/Fab';
 import AddIcon from '@material-ui/icons/Add';
 import AuthService from '../Auth/AuthService';
+import { BrowserRouter as Router, Route, Switch, Link } from 'react-router-dom';
 
 const authService = new AuthService();
 const useStyles = makeStyles({
@@ -44,8 +45,8 @@ export default function SimpleBottomNavigation() {
       showLabels
       className={classes.root}
     >
-      <BottomNavigationAction label="Transactions" icon={<RestoreIcon />}  onClick={e => window.location.href='/'}  />
-      <BottomNavigationAction label="Categories" icon={<FavoriteIcon />}  onClick={e => window.location.href='/category/list'} />
+      <BottomNavigationAction label="Transactions" icon={<RestoreIcon />}  component="Link" to='/'  />
+      <BottomNavigationAction label="Categories" icon={<FavoriteIcon />}  component="Link" to='/category/list' />
       <BottomNavigationAction label="Logout" icon={<LocationOnIcon />} onClick={e => logout()} />
     </BottomNavigation>
 
